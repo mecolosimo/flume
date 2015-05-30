@@ -117,9 +117,10 @@ public class KafkaSource extends AbstractSource
         }
         if (log.isDebugEnabled()) {
           log.debug("Waited: {} ", System.currentTimeMillis() - batchStartTime);
-          log.debug("Event #: {}", eventList.size());
+          log.debug("Number of Events: {}", eventList.size());
         }
       }
+      
       long endTime = System.nanoTime();
       counter.addToKafkaEventGetTimer((endTime-startTime)/(1000*1000));
       counter.addToEventReceivedCount(Long.valueOf(eventList.size()));
@@ -129,10 +130,11 @@ public class KafkaSource extends AbstractSource
       if (eventList.size() > 0) {
         getChannelProcessor().processEventBatch(eventList);
         counter.addToEventAcceptedCount(eventList.size());
-        eventList.clear();
         if (log.isDebugEnabled()) {
           log.debug("Wrote {} events to channel", eventList.size());
         }
+        eventList.clear();
+        
         if (!kafkaAutoCommitEnabled) {
           // commit the read transactions to Kafka to avoid duplicates
           long commitStartTime = System.nanoTime();
